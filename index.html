@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Gitty by gordonwritescode</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Gitty</h1>
+        <p class="header">A Node.js wrapper for the Git CLI</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/gordonwritescode/Gitty/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/gordonwritescode/Gitty/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/gordonwritescode/Gitty">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/gordonwritescode">gordonwritescode</a></p>
+
+
+      </header>
+      <section>
+        <p>Gitty is a Node.js module that acts as a wrapper for the Git CLI. It uses methods that resemble the Git command line syntax to asynchronously execute common commands, and return passes the output as standard JavaScript objects and arrays - depending on the call.</p>
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li>Node.js 0.8.x (<a href="http://nodejs.org">http://nodejs.org</a>)</li>
+<li>Git 1.7.x.x (<a href="http://git-scm.com">http://git-scm.com</a>)</li>
+</ul><h2>Installation</h2>
+
+<pre><code>$ npm install gitty
+</code></pre>
+
+<h2>Usage</h2>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">git</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'gitty'</span><span class="p">);</span>
+
+<span class="c1">// get commit log as an array of objects</span>
+<span class="c1">// and log to the console</span>
+<span class="nx">git</span><span class="p">.</span><span class="nx">history</span><span class="p">(</span><span class="s1">'/path/to/repo'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">output</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">output</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+
+<h2>Documentation</h2>
+
+<p>Internally, Gitty uses a private method <code>repository(path)</code> that checks if the given path is a valid Git repository. If the check passes, then a child process is spawned and the process moves into the given directory to perform the command. After the callback is fired for the given function, Gitty moves the process back to it's original directory.</p>
+
+<blockquote>
+<p>To ensure the best performance you should always use absolute or server-relative paths. For example '/users/username/repositories/projectname'.</p>
+</blockquote>
+
+<p>All <code>path</code> arguments should follow this convention.</p>
+
+<p>Callbacks for all methods are given a single object. Usually, this object contains a single property and value. <strong>Successful</strong> operations get a <code>message</code> property containing either the <code>stdout</code> from the command or a message confirming the operation was successfull.</p>
+
+<p><strong>Failed</strong> operations get an <code>error</code> property, for which the value is either one of: an error from Node, <code>stderr</code> from the operation, or a message alert the operation failed - whichever is relevant.</p>
+
+<p>This is not the case for every method. Refer to the method list below for specifics.</p>
+
+<h3>history(path, [callback])</h3>
+
+<p>Gives an <em>array</em> of objects containing <code>commit</code>, <code>author</code>, <code>date</code>, and <code>message</code>.</p>
+
+<h3>create(name, description, path, [callback])</h3>
+
+<p>Creates a directory at the given path, create a README markdown file with the name and desciption, initializes a git repository, and stages an initial commit.</p>
+
+<h3>destroy(path, deletefiles, [callback])</h3>
+
+<p>Uninitializes the repository at the given path. The <code>deletefiles</code> argument is a boolean that determines whether of not to also delete the contents of the repository.</p>
+
+<h3>status(path, [callback])</h3>
+
+<p>Gives an object with properties for <code>staged</code>, <code>not_staged</code>, and <code>untracked</code>. Each property represents an array of objects - each containing a <code>file</code> and <code>status</code>. </p>
+
+<h3>add(path, files, [callback])</h3>
+
+<p>Adds an array of files for commit, and gives back and object of <code>errors</code> (array) and <code>added</code> (array).</p>
+
+<h3>remove(path, files, [callback])</h3>
+
+<p>Removes array of files for commit, and gives back and object of <code>errors</code> (array) and <code>added</code> (array).</p>
+
+<h3>unstage(path, files, callback)</h3>
+
+<p>Unstages array of files for commit, and gives back and object of <code>errors</code> (array) and <code>added</code> (array).</p>
+
+<h3>commit(path, message, [callback])</h3>
+
+<p>Stages a commit with message based on the current staged files.</p>
+
+<h3>tree(path, [callback])</h3>
+
+<p>Gives back an object representing the <code>current</code> branch and an array of <code>others</code>.</p>
+
+<h3>branch(path, branchname, [callback])</h3>
+
+<p>Creates a branch using the <code>branchname</code> for the repository at the given path</p>
+
+<h3>checkout(path, branchname, [callback])</h3>
+
+<p>Does a checkout on the given <code>branchname</code>.</p>
+
+<h3>remote.add(path, remote, url, callback)</h3>
+
+<p>Adds a remote to the given repository.</p>
+
+<h3>remote.update(path, remote, url, callback)</h3>
+
+<p>Updates an existing remote's url.</p>
+
+<h3>remote.remove(path, remote, callback)</h3>
+
+<p>Removes the given remote from the repository.</p>
+
+<h3>remote.list(path, [callback])</h3>
+
+<p>Returns an object where each <code>key</code> is the remote name and <code>val</code> is the remote url.</p>
+
+<h3>push(path, remote, branch, callback)</h3>
+
+<p>Pushes the passed <code>branch</code> to the passed <code>remote</code>.</p>
+
+<h3>pull(path, remote, branch, callback)</h3>
+
+<p>Pulls the passed <code>branch</code> from the passed <code>remote</code>.</p>
+
+<h3>reset(path, hash, callback)</h3>
+
+<p>Resets the HEAD back to the status of the passed commit hash.</p>
+
+<h3>merge(path, branch, [callback])</h3>
+
+<p>Merges the given <code>branch</code> with the current branch.</p>
+
+<h3>clone(path, url, callback)</h3>
+
+<p>Clones a remote repository into the specified path.</p>
+
+<h2>Author</h2>
+
+<p>Gitty was written by Gordon Hall (<a href="mailto:gordon@gordonwritescode.com">gordon@gordonwritescode.com</a>)<br>
+Licensed under MIT license</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		          <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-34751108-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
