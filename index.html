@@ -30,7 +30,7 @@
 
       </header>
       <section>
-        <p>Gitty is a Node.js module that acts as a wrapper for the Git CLI. It uses methods that resemble the Git command line syntax to asynchronously execute common commands, and return passes the output as standard JavaScript objects and arrays - depending on the call.</p>
+        <p>Gitty is a Node.js wrapper for the Git CLI. It's syntax closely resembles the Git command line syntax to asynchronously execute common commands, and parses the output into operable objects - depending on the call.</p>
 
 <h2>Prerequisites</h2>
 
@@ -44,110 +44,531 @@
 
 <h2>Usage</h2>
 
-<div class="highlight"><pre><span class="kd">var</span> <span class="nx">git</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'gitty'</span><span class="p">);</span>
+<p>First, require Gitty.</p>
 
-<span class="c1">// get commit log as an array of objects</span>
-<span class="c1">// and log to the console</span>
-<span class="nx">git</span><span class="p">.</span><span class="nx">history</span><span class="p">(</span><span class="s1">'/path/to/repo'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">output</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">output</span><span class="p">);</span>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">git</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'gitty'</span><span class="p">);</span>
+</pre></div>
+
+<p>The "meat" of the functionality is encapsulated in instances of a <code>Repository</code> object. This object is instantiated with the path to the repository you wish to perform actions on.</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">myRepo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">git</span><span class="p">.</span><span class="nx">Repository</span><span class="p">(</span><span class="s1">'/path/to/repo'</span><span class="p">);</span>
+</pre></div>
+
+<p>Now you can call this instance of <code>Repository</code>'s methods. For example, to execute <code>git log</code> for <code>myRepo</code>, you would do:</p>
+
+<div class="highlight"><pre><span class="nx">myRepo</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">log</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// handle error</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// do something with `log`  </span>
+    <span class="p">}</span>
 <span class="p">});</span>
 </pre></div>
 
-<h2>Documentation</h2>
+<p>A complete list of the available methods is below, as well as other Gitty functions.</p>
 
-<p>Internally, Gitty uses a private method <code>repository(path)</code> that checks if the given path is a valid Git repository. If the check passes, then a child process is spawned and the process moves into the given directory to perform the command. After the callback is fired for the given function, Gitty moves the process back to it's original directory.</p>
+<h2>Potential Use Cases</h2>
 
-<blockquote>
-<p>To ensure the best performance you should always use absolute or server-relative paths. For example '/users/username/repositories/projectname'.</p>
+<ul>
+<li>Writing an exception logger with more insight</li>
+<li>Building a web based Git client</li>
+<li>Integrating automated deployments</li>
+</ul><h2>Documentation</h2>
+
+<h3>Repository(path)</h3>
+
+<p>Creates an instance of <code>gitty.Repository</code> from the given <code>path</code>. Each instance contains the following properties and has access to the following methods.</p>
+
+<h4>Repository.isRepository</h4>
+
+<p><strong>Type</strong>: <code>Boolean</code></p>
+
+<p>Based on the existence of the <code>.git/</code> directory under the instance <code>path</code>.</p>
+
+<h4>Repository.name</h4>
+
+<p><strong>Type</strong>: <code>String</code></p>
+
+<p>Directory name of the instantiated <code>Repository</code>.</p>
+
+<h4>Repository.path</h4>
+
+<p><strong>Type</strong>: <code>String</code></p>
+
+<p>Normalized copy of the instance <code>path</code>.</p>
+
+<h4>Repository.init(callback, flags)</h4>
+
+<p>Initializes the directory as a Git repository.</p>
+
+<p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><p><strong>flags</strong></p>
+
+<ul>
+<li>Type: <code>Array</code>
+</li>
+<li>Description: Command flags like <code>['--bare','--shared']</code>
+</li>
+</ul><h4>Repository.log(callback)</h4>
+
+<p>Passes commit history as array to callback</p>
+
+<p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, log)</code>
+</li>
+</ul><h4>Repository.status(callback)</h4>
+
+<p>Passes a status object into the callback</p>
+
+<p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, status)</code>
+</li>
+</ul><h4>Repository.add(files, callback)</h4>
+
+<p>Stages the passed array of files for commit</p>
+
+<p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><h4>Repository.remove(files, callback)</h4>
+
+<p>Removes the passed array of files for commit</p>
+
+<p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><h4>Repository.unstage(files, callback)</h4>
+
+<p>Removes passed array of files from staging area</p>
+
+<p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><h4>Repository.commit(message, callback)</h4>
+
+<p>Commits the current staged files</p>
+
+<p><strong>message</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Commit message</li>
+</ul><p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, output)</code>
+</li>
+</ul><h4>Repository.branches(callback)</h4>
+
+<p>Passes object denoting current branch and array of other branches</p>
+
+<p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, branches)</code>
+</li>
+</ul><h4>Repository.branch(name, callback)</h4>
+
+<p>Creates a new branch from the given branch name</p>
+
+<p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><h4>Repository.checkout(branch, callback)</h4>
+
+<p>Performs checkout on given branch</p>
+
+<p><strong>branch</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of the branch to checkout</li>
+</ul><p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, branches)</code>
+</li>
+</ul><h4>Repository.merge(branch, callback)</h4>
+
+<p>Performs a merge of the current branch with the specified one</p>
+
+<p><strong>branch</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of the branch to merge into current</li>
+</ul><p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><h4>Repository.remote.add(name, url, callback)</h4>
+
+<p>Adds a new remote</p>
+
+<p><strong>name</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of the remote to add</li>
+</ul><p><strong>url</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: URL to set for the new remote</li>
+</ul><p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><h4>Repository.remote.setUrl(name, url, callback)</h4>
+
+<p>Changes url of an existing remote</p>
+
+<p><strong>name</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of the remote to edit</li>
+</ul><p><strong>url</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: URL to set for the existing remote</li>
+</ul><p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><h4>Repository.remote.remove(name, callback)</h4>
+
+<p>Removes the specified remote</p>
+
+<p><strong>name</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of the remote to remove</li>
+</ul><p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><h4>Repository.remote.list(callback)</h4>
+
+<p>Passes key-value pairs to callback formatted: <code>remote : url</code></p>
+
+<p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, remotes)</code>
+</li>
+</ul><h4>Repository.push(remote, branch, callback, creds)</h4>
+
+<p>Pushes the specified branch to the specified remote</p>
+
+<p><strong>remote</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of the remote to push to</li>
+</ul><p><strong>branch</strong></p>
+
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of the branch to push</li>
+</ul><p><strong>callback</strong></p>
+
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, success)</code>
+</li>
+</ul><p><strong>creds</strong> (optional)</p>
+
+<ul>
+<li>Type: <code>Object</code>
+</li>
+<li>Description: Formatted as <code>{ user : 'username', pass : 'password' }</code>
+</li>
+</ul><blockquote>
+<p><strong>Note:</strong> This method does not use an instance of <code>Command()</code>, see <em>Authenticated Repositories</em></p>
 </blockquote>
 
-<p>All <code>path</code> arguments should follow this convention.</p>
+<h4>Repository.pull(remote, branch, callback, creds)</h4>
 
-<p>Callbacks for all methods are given a single object. Usually, this object contains a single property and value. <strong>Successful</strong> operations get a <code>message</code> property containing either the <code>stdout</code> from the command or a message confirming the operation was successfull.</p>
+<p>Pulls the specified branch from the specified remote</p>
 
-<p><strong>Failed</strong> operations get an <code>error</code> property, for which the value is either one of: an error from Node, <code>stderr</code> from the operation, or a message alert the operation failed - whichever is relevant.</p>
+<p><strong>remote</strong></p>
 
-<p>This is not the case for every method. Refer to the method list below for specifics.</p>
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of the remote to pull from</li>
+</ul><p><strong>branch</strong></p>
 
-<h3>history(path, [callback])</h3>
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of the branch to pull</li>
+</ul><p><strong>callback</strong></p>
 
-<p>Gives an <em>array</em> of objects containing <code>commit</code>, <code>author</code>, <code>date</code>, and <code>message</code>.</p>
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, success)</code>
+</li>
+</ul><p><strong>creds</strong> (optional)</p>
 
-<h3>create(name, description, path, [callback])</h3>
+<ul>
+<li>Type: <code>Object</code>
+</li>
+<li>Description: Formatted as <code>{ user : 'username', pass : 'password' }</code>
+</li>
+</ul><blockquote>
+<p><strong>Note:</strong> This method does not use an instance of <code>Command()</code>, see <em>Authenticated Repositories</em></p>
+</blockquote>
 
-<p>Creates a directory at the given path, create a README markdown file with the name and desciption, initializes a git repository, and stages an initial commit.</p>
+<h4>Repository.reset(hash, callback)</h4>
 
-<h3>destroy(path, deletefiles, [callback])</h3>
+<p>Resets the repository's HEAD to the specified commit and passes commit log to callback</p>
 
-<p>Uninitializes the repository at the given path. The <code>deletefiles</code> argument is a boolean that determines whether of not to also delete the contents of the repository.</p>
+<p><strong>hash</strong></p>
 
-<h3>status(path, [callback])</h3>
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Commit hash identifier to rest to</li>
+</ul><p><strong>callback</strong></p>
 
-<p>Gives an object with properties for <code>staged</code>, <code>not_staged</code>, and <code>untracked</code>. Each property represents an array of objects - each containing a <code>file</code> and <code>status</code>. </p>
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, log)</code>
+</li>
+</ul><h3>Command(path, operation, flags, options)</h3>
 
-<h3>add(path, files, [callback])</h3>
+<p>Creates an instance of <code>gitty.Command</code> from the given arguments. This is constructor is used primarily internally, for executing <code>Repository</code> methods, however, it is exposed - see <em>Extending Gitty</em>. Each instance contains the following properties and has access to the following methods.</p>
 
-<p>Adds an array of files for commit, and gives back and object of <code>errors</code> (array) and <code>added</code> (array).</p>
+<h4>Command.repo</h4>
 
-<h3>remove(path, files, [callback])</h3>
+<p><strong>Type</strong>: <code>String</code></p>
 
-<p>Removes array of files for commit, and gives back and object of <code>errors</code> (array) and <code>added</code> (array).</p>
+<p>Directory path for the instantiated <code>Command</code> object</p>
 
-<h3>unstage(path, files, callback)</h3>
+<h4>Command.command</h4>
 
-<p>Unstages array of files for commit, and gives back and object of <code>errors</code> (array) and <code>added</code> (array).</p>
+<p><strong>Type</strong>: <code>String</code></p>
 
-<h3>commit(path, message, [callback])</h3>
+<p>Assembled command string based on the instantiated <code>operation</code>, <code>flags</code>, and <code>options</code></p>
 
-<p>Stages a commit with message based on the current staged files.</p>
+<h4>Command.exec(callback)</h4>
 
-<h3>tree(path, [callback])</h3>
+<p>Executes a <code>child_process</code> by the instance's <code>command</code> property in the directory specified by the instance's <code>path</code> property</p>
 
-<p>Gives back an object representing the <code>current</code> branch and an array of <code>others</code>.</p>
+<p><strong>callback</strong></p>
 
-<h3>branch(path, branchname, [callback])</h3>
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, stdout, stderr)</code>
+</li>
+</ul><blockquote>
+<p><strong>Note:</strong> This is a wrapper for Node's <code>child_process.exec</code> that, first, validates the path as a Git repository before execution. If the path fails validation, an <code>Error</code> will be thrown.</p>
+</blockquote>
 
-<p>Creates a branch using the <code>branchname</code> for the repository at the given path</p>
+<h3>config(key, value, callback)</h3>
 
-<h3>checkout(path, branchname, [callback])</h3>
+<p>Does global Git configuration</p>
 
-<p>Does a checkout on the given <code>branchname</code>.</p>
+<p><strong>key</strong></p>
 
-<h3>remote.add(path, remote, url, callback)</h3>
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Name of configuration property to set</li>
+</ul><p><strong>value</strong></p>
 
-<p>Adds a remote to the given repository.</p>
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Value to set to the named configuration property</li>
+</ul><p><strong>callback</strong> (optional)</p>
 
-<h3>remote.update(path, remote, url, callback)</h3>
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err)</code>
+</li>
+</ul><h3>clone(path, url, callback, creds)</h3>
 
-<p>Updates an existing remote's url.</p>
+<p>Clones the repository at <code>url</code> into the specified <code>path</code></p>
 
-<h3>remote.remove(path, remote, callback)</h3>
+<p><strong>path</strong></p>
 
-<p>Removes the given remote from the repository.</p>
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Path to directory to clone into</li>
+</ul><p><strong>url</strong></p>
 
-<h3>remote.list(path, [callback])</h3>
+<ul>
+<li>Type: <code>String</code>
+</li>
+<li>Description: Url of the Git repository to clone</li>
+</ul><p><strong>callback</strong></p>
 
-<p>Returns an object where each <code>key</code> is the remote name and <code>val</code> is the remote url.</p>
+<ul>
+<li>Type: <code>Function</code>
+</li>
+<li>Description: Receives argument(s): <code>(err, success)</code>
+</li>
+</ul><p><strong>creds</strong> (optional)</p>
 
-<h3>push(path, remote, branch, callback)</h3>
+<ul>
+<li>Type: <code>Object</code>
+</li>
+<li>Description: Formatted as <code>{ user : 'username', pass : 'password' }</code>
+</li>
+</ul><blockquote>
+<p><strong>Note:</strong> This method does not use an instance of <code>Command()</code>, see <em>Authenticated Repositories</em></p>
+</blockquote>
 
-<p>Pushes the passed <code>branch</code> to the passed <code>remote</code>.</p>
+<h2>Authenticated Repositories</h2>
 
-<h3>pull(path, remote, branch, callback)</h3>
+<p>One challenge that was faced while developing Gitty was performing any authenticated operations. Since OpenSSH does not read input from <code>stdin</code> for authentication, but rather a psuedo-terminal - Gitty uses <em>pty.js</em> (<a href="https://github.com/chjj/pty.js/">https://github.com/chjj/pty.js/</a>) to spawn a pseudo-terminal for operations that may require authentication, such as <code>pull</code>, <code>push</code>, and <code>clone</code>.</p>
 
-<p>Pulls the passed <code>branch</code> from the passed <code>remote</code>.</p>
+<p>Credentials are always passed as the last argument and are optional. Below is an example of an authenticated <code>Repository.push()</code>.</p>
 
-<h3>reset(path, hash, callback)</h3>
+<div class="highlight"><pre><span class="c1">// do authenticated push to origin</span>
+<span class="nx">myRepo</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">'origin'</span><span class="p">,</span> <span class="s1">'master'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">succ</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">succ</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+    <span class="nx">user</span> <span class="o">:</span> <span class="s1">'username'</span><span class="p">,</span>
+    <span class="nx">pass</span> <span class="o">:</span> <span class="s1">'password'</span>
+<span class="p">});</span>
+</pre></div>
 
-<p>Resets the HEAD back to the status of the passed commit hash.</p>
+<p>This format is consistent for all authenticated operations. Keep this in mind if you are extending Gitty with an operation that requires authentication, and be sure to read the pty.js documentation.</p>
 
-<h3>merge(path, branch, [callback])</h3>
+<h2>Extending Gitty</h2>
 
-<p>Merges the given <code>branch</code> with the current branch.</p>
+<p>Almost all of the <code>Repository</code> methods are simply convenience wrappers around instances of <code>Command</code>. This makes extending the <code>Repository</code> constructor with custom methods easy as pie! Let's run through a quick example. Let's say we want to add a method for creating a new branch and automatically switching to it. What do we need to do?</p>
 
-<h3>clone(path, url, callback)</h3>
+<ol>
+<li>Extend the <code>Repository</code> prototype</li>
+<li>Create a new instance of <code>Command</code>
+</li>
+<li>Parse the output and pass to a callback</li>
+</ol><p>Three steps is all it should take to add a new method to the <code>Repository</code> constructor, and below is how you might do it.</p>
 
-<p>Clones a remote repository into the specified path.</p>
+<div class="highlight"><pre><span class="c1">// require gitty</span>
+<span class="kd">var</span> <span class="nx">git</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'gitty'</span><span class="p">);</span>
+
+<span class="c1">// create new prototype endpoint</span>
+<span class="c1">// we want to pass a branch name and callback into this method</span>
+<span class="nx">git</span><span class="p">.</span><span class="nx">Repository</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">branchAndCheckout</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="c1">// save the scope of the repository</span>
+    <span class="kd">var</span> <span class="nx">repo</span> <span class="o">=</span> <span class="k">this</span>
+    <span class="c1">// create a new instance of Command</span>
+      <span class="p">,</span> <span class="nx">cmd</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">git</span><span class="p">.</span><span class="nx">Command</span><span class="p">(</span><span class="nx">repo</span><span class="p">.</span><span class="nx">path</span><span class="p">,</span> <span class="s1">'checkout'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'-b'</span><span class="p">],</span> <span class="nx">name</span><span class="p">);</span>
+
+    <span class="c1">// execute the command and determine the outcome</span>
+    <span class="nx">cmd</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">stdout</span><span class="p">,</span> <span class="nx">stderr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">err</span> <span class="o">=</span> <span class="nx">error</span> <span class="o">||</span> <span class="nx">stderr</span><span class="p">;</span>
+
+        <span class="c1">// call the callback function in the repository scope</span>
+        <span class="c1">// passing it err and stdout</span>
+        <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">repo</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">stdout</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+</pre></div>
+
+<p>It's a simple as that. Now you would be able to use this custom method in your application, like so:</p>
+
+<div class="highlight"><pre><span class="nx">myRepo</span><span class="p">.</span><span class="nx">branchAndCheckout</span><span class="p">(</span><span class="s1">'myBranch'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// throw error</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<h2>The Output Parser</h2>
+
+<p>The output parser is simply a collection of functions that accept the string output of an executed command, and turn it into something that can be operated on. For example, the output from <code>git log</code> gets converted to an array of object-literals before being returned back to the callback for <code>Repository.log()</code>. </p>
+
+<h2>Contributing</h2>
+
+<p>One of the reasons I have tried to make Gitty so easy to extend is, well, because I want you to extend it! It is not a wrapper for every possible Git operation, but it most certainly could be, and with minimal coding too! Contributions are always welcome and encouraged. However, to keep Gitty clean and healthy, before making additions consider the following:</p>
+
+<ol>
+<li>Does my addition follow the conventions already in place?</li>
+<li>Does my code belong where I have placed it?</li>
+<li>Does my syntax resemble the Git CLI?</li>
+</ol><p>If you can answer "yes" to these 3 questions, then send a pull request!</p>
 
 <h2>Author</h2>
 
