@@ -30,19 +30,32 @@
 
       </header>
       <section>
-        <p>Gitty is a Node.js wrapper for the Git CLI. It's syntax closely resembles the Git command line syntax to asynchronously execute common commands, and parses the output into operable objects - depending on the call.</p>
+        <h2>Overview</h2>
+
+<p>Gitty is a Node.js wrapper for the Git CLI. It's syntax closely resembles the Git command line syntax to asynchronously execute common commands, and parses the output into operable objects - depending on the call.</p>
 
 <h2>Prerequisites</h2>
 
 <ul>
 <li>Node.js 0.8.x (<a href="http://nodejs.org">http://nodejs.org</a>)</li>
 <li>Git 1.7.x.x (<a href="http://git-scm.com">http://git-scm.com</a>)</li>
+<li>Mac OSX or Linux-based System</li>
 </ul><h2>Installation</h2>
 
 <pre><code>$ npm install gitty
 </code></pre>
 
-<h2>Usage</h2>
+<p><strong>Note</strong>: If you encounter an error during installation on Mac OSX, make sure you have the XCode Command Line Tools installed. Gitty depends on <strong>pty.js</strong> for authenticated operations - which requires GCC compiler.</p>
+
+<ol>
+<li>Go to the App store and download the latest version of Xcode for free.</li>
+<li>Install Xcode (the app store actually downloads the "installer" for Xcode)</li>
+<li>Start Xcode</li>
+<li>Go to Preferences</li>
+<li>Go to Downloads</li>
+<li>Click on the "install" button after "Command Line Tools"</li>
+<li>Reboot</li>
+</ol><h2>Usage</h2>
 
 <p>First, require Gitty.</p>
 
